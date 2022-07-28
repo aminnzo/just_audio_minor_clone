@@ -745,7 +745,7 @@ public class AudioPlayer implements MethodCallHandler, Player.Listener, Metadata
         builder.setContentType(contentType);
         builder.setFlags(flags);
         builder.setUsage(usage);
-        //builder.setAllowedCapturePolicy((Integer)json.get("allowedCapturePolicy"));
+        builder.setAllowedCapturePolicy((Integer)json.get("allowedCapturePolicy"));
         AudioAttributes audioAttributes = builder.build();
         if (processingState == ProcessingState.loading) {
             // audio attributes should be set either before or after loading to
