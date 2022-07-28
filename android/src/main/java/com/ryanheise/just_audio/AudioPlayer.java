@@ -8,6 +8,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+
+import androidx.annotation.RequiresApi;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLivePlaybackSpeedControl;
 import com.google.android.exoplayer2.DefaultLoadControl;
@@ -494,7 +497,9 @@ public class AudioPlayer implements MethodCallHandler, Player.Listener, Metadata
                 result.success(new HashMap<String, Object>());
                 break;
             case "androidLoudnessEnhancerSetTargetGain":
-                loudnessEnhancerSetTargetGain(call.argument("targetGain"));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    loudnessEnhancerSetTargetGain(call.argument("targetGain"));
+                }
                 result.success(new HashMap<String, Object>());
                 break;
             case "androidEqualizerGetParameters":
@@ -745,7 +750,7 @@ public class AudioPlayer implements MethodCallHandler, Player.Listener, Metadata
         builder.setContentType(contentType);
         builder.setFlags(flags);
         builder.setUsage(usage);
-        builder.setAllowedCapturePolicy((Integer)json.get("allowedCapturePolicy"));
+        builder.setAllowedCapturePolicy(C.ALLOW_CAPTURE_BY_NONE);
         AudioAttributes audioAttributes = builder.build();
         if (processingState == ProcessingState.loading) {
             // audio attributes should be set either before or after loading to
@@ -760,9 +765,12 @@ public class AudioPlayer implements MethodCallHandler, Player.Listener, Metadata
         audioEffectsMap.get(type).setEnabled(enabled);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void loudnessEnhancerSetTargetGain(double targetGain) {
         int targetGainMillibels = (int)Math.round(targetGain * 1000.0);
-        ((LoudnessEnhancer)audioEffectsMap.get("AndroidLoudnessEnhancer")).setTargetGain(targetGainMillibels);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            ((LoudnessEnhancer)audioEffectsMap.get("AndroidLoudnessEnhancer")).setTargetGain(targetGainMillibels);
+        }
     }
 
     private Map<String, Object> equalizerAudioEffectGetParameters() {
